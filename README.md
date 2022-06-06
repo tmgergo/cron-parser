@@ -1,23 +1,39 @@
-## Notes
+## How to run
+The app is packaged as a jar file, it can be found in the [./test_config](./test_config) folder, and can be run with:
 
-Build:
+`java -jar cron-parser-1.0.jar`
+
+To test it with an example config, run (from the project's root folder):
+
+`cat ./test_config/example_config.txt | java -jar ./test_config/cron-parser-1.0.jar 16:10`
+
+### Build
+If needed, the project can be re-built by running the `jar` gradle task. From the project's root folder:
 
 `./gradlew jar`
 
-Run:
+The new jar file will be put in `./build/libs/`
 
-`java -jar ./build/libs/cron-parser-1.0.jar`
-
-`cat ./test_config/example_config.txt | java -jar ./build/libs/cron-parser-1.0.jar`
+## Test coverage
+A detailed test coverage report can be found [here](./coverage-report/ns-1/index.html).
 
 ## Assumptions
+During development, I made the following assumptions:
 - all times in the task config are in 24h format
-- the separator between the minute, the hour and the command can be one or multiple whitespaces
+- the separator between the minute, the hour and the command can be one or multiple whitespaces (e.g. `30 1 /bin/run_me_daily` and `30    1     /bin/run_me_daily` are both valid)
+- the task config lines may contain leading and trailing whitespaces (e.g. `30 1 /bin/run_me_daily` and `     30 1 /bin/run_me_daily    ` are both valid) 
+- each word after the minute and hour is part of the command (e.g. in case of `30 1 /bin/run_me_daily -A param1` the command is `/bin/run_me_daily -A param1`)
 - commands have reasonable length and word count
-- simulated current time has leading 0s (e.g. "03:27" and not "3:27")
-- output: only minutes are padded with zeros
+- the simulated current time has leading 0s (e.g. `03:27` and not `3:27`)
+- in the next run output only minutes are padded with zeros (e.g. `3:07` and not `03:07`)
 
-## Requirements
+## Comments, considerations, potential future improvements
+- One could easily argue that the solution is over-engineered and I wouldn't argue against it. I assumed this would be a solution used long term and so aimed to make it a well architected application.
+- Some utility type functionality (e.g. parsing) could be implemented as extension functions. The current utility classes provide better encapsulation, especially around the magic values in `TaskUtils`. The encapsulation around `TaskUtils.ALL_VALUES` could be better, but it is "good enough" for a system with this scope.
+- I could have used e.g. `LocalTime` instead of the custom `SimulatedTime` data class, but a more narrow API is probably better here. Also, the name of the class might be too specific, but in this well-defined scope the current name described exactly what this class represents.
+- For the error case I could have added better, more descriptive messages
+
+# Requirements
 
 We have a set of tasks, each running at least daily, which are scheduled with a simplified cron. We want to find when each of them will next run.
 
