@@ -1,10 +1,11 @@
 package co.uk.tmgergo.cronparser
 
 fun main(args: Array<String>) {
-    InputStreamConfigReader(StdinProvider()).readConfigLines()
+    val configReader = InputStreamConfigReader(StdinProvider())
+    ConfigProvider(configReader, TaskUtils::parse).provideTasks()
         .fold(
             {
-                it.forEach{ line -> println(TaskUtils.parse(line)) }
+                it.forEach{ task -> println(task) }
             },
             {
                 println(it.message)
