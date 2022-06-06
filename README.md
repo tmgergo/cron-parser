@@ -15,6 +15,7 @@ Run:
 - the separator between the minute, the hour and the command can be one or multiple whitespaces
 - commands have reasonable length and word count
 - simulated current time has leading 0s (e.g. "03:27" and not "3:27")
+- output: only minutes are padded with zeros
 
 ## Requirements
 
