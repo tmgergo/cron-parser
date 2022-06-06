@@ -8,6 +8,13 @@ Run:
 
 `java -jar ./build/libs/cron-parser-1.0.jar`
 
+`cat ./test_config/example_config.txt | java -jar ./build/libs/cron-parser-1.0.jar`
+
+## Assumptions
+- all times in the task config are in 24h format
+- the separator between the minute, the hour and the command can be one or multiple whitespaces
+- commands have reasonable length and word count
+
 ## Requirements
 
 We have a set of tasks, each running at least daily, which are scheduled with a simplified cron. We want to find when each of them will next run.
