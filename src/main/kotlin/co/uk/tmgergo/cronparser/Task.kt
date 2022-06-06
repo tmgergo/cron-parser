@@ -24,6 +24,25 @@ object TaskUtils {
         return Task(minute, hour, command)
     }
 
+    fun calculateNextRun(task: Task, now: SimulatedTime) : NextRun {
+        var nextHour = task.hour
+        var nextMinute = task.minute
+
+        if (task.hour == ALL_VALUES && task.minute == ALL_VALUES) {
+            nextHour = now.hour
+            nextMinute = now.minute
+        } else if (task.hour == ALL_VALUES) {
+            nextHour = now.hour + if (task.minute >= now.minute) 0 else 1
+            nextHour = if (nextHour !in 0..23) 0 else nextHour
+        } else if (task.minute == ALL_VALUES) {
+            nextMinute = if (task.hour == now.hour) now.minute else 0
+        }
+
+        val isToday = nextHour > now.hour || (nextHour == now.hour && nextMinute >= now.minute)
+
+        return NextRun(task, nextHour, nextMinute, isToday)
+    }
+
     private fun splitToWords(taskConfig: String): List<String> =
         WHITESPACES.split(taskConfig.trim()).toList()
 

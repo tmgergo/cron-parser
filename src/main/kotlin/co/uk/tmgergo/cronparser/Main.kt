@@ -1,26 +1,26 @@
 package co.uk.tmgergo.cronparser
 
 fun main(args: Array<String>) {
-    val configReader = InputStreamConfigReader(StdinProvider())
-    ConfigProvider(configReader, TaskUtils::parse).provideTasks()
-        .fold(
+    val simulatedTime = if (args.isEmpty()) null else SimulatedTimeParser.parse(args[0])
+
+    simulatedTime?.let { now ->
+        val configReader = InputStreamConfigReader(StdinProvider())
+        val configProvider = ConfigProvider(configReader, TaskUtils::parse)
+        configProvider.provideTasks().fold(
             {
-                it.forEach{ task -> println(task) }
-            },
-            {
-                println(it.message)
+                println("Next runs:")
+                it.forEach { task ->
+                    val nextRun = TaskUtils.calculateNextRun(task, now)
+                    println("${nextRun.hour}:${nextRun.minute} "
+                            + (if (nextRun.isToday) "today" else "tomorrow")
+                            + " ${nextRun.task.command}"
+                    )
+                }
+            }, {
+                println("Failed to read task config: $it.message")
             }
         )
-
-    val currentTimeSting = if (args.isEmpty()) null else args[0]
-
-    currentTimeSting?.let {
-        SimulatedTimeParser.parse(it)?.let { currentTime ->
-            println("Current time: $currentTime")
-        } ?: run {
-            println("Invalid current time data provided.")
-        }
     } ?: run {
-        println("No current time data provided.")
+        println("No or invalid current time provided.")
     }
 }
